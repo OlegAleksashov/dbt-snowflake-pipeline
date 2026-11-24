@@ -8,3 +8,20 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Snowflake keys
+*rsa_key.p8
+*rsa_key.pub
+
+# Logs
+logs/
+
+# macOS
+.DS_Store
+
+# Raw data (large parquet files)
+data/
+
+# dbt user-specific / credentials
+analytics/.user.yml
+analytics/profiles.yml
