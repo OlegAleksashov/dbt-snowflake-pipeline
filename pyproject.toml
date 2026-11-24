@@ -7,7 +7,11 @@ authors = [
     { name = "OlegAleksashov", email = "oleg.aleksashov@gmail.com" }
 ]
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "dbt>=2.0.12",
+    "snowflake-connector-python[pandas]>=3.12,<6",
+    "pyyaml>=6.0",
+]
 
 [project.scripts]
 dbt-snowflake-pipeline = "dbt_snowflake_pipeline:main"
