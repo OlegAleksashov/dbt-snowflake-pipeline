@@ -1,3 +1,4 @@
+{{ config(materialized='view') }}
 SELECT
 	JOB_ID,
 	JOB_TITLE,
