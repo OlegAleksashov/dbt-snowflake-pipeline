@@ -1,0 +1,44 @@
+name: dbt build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_PRIVATE_KEY_PASSPHRASE: ${{ secrets.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+
+      - name: Write Snowflake private key
+        run: |
+          echo "$SNOWFLAKE_PRIVATE_KEY" > /tmp/snowflake_key.p8
+          chmod 600 /tmp/snowflake_key.p8
+        env:
+          SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
+
+      - name: Set key path
+        run: echo "SNOWFLAKE_PRIVATE_KEY_PATH=/tmp/snowflake_key.p8" >> "$GITHUB_ENV"
+
+      - name: dbt build
+        working-directory: analytics
+        run: uv run dbt build --profiles-dir ci
+
+      - name: Cleanup private key
+        if: always()
+        run: rm -f /tmp/snowflake_key.p8
