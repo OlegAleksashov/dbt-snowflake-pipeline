@@ -36,16 +36,6 @@ jobs:
       - name: Set key path
         run: echo "SNOWFLAKE_PRIVATE_KEY_PATH=/tmp/snowflake_key.p8" >> "$GITHUB_ENV"
 
-      - name: Verify secrets are set
-        run: |
-          for var in SNOWFLAKE_ACCOUNT SNOWFLAKE_USER SNOWFLAKE_ROLE SNOWFLAKE_WAREHOUSE SNOWFLAKE_DATABASE SNOWFLAKE_PRIVATE_KEY_PASSPHRASE SNOWFLAKE_PRIVATE_KEY_PATH; do
-            if [ -z "${!var}" ]; then
-              echo "MISSING: $var"
-            else
-              echo "OK: $var (${#!var} chars)"
-            fi
-          done
-
       - name: dbt build
         working-directory: analytics
         run: uv run dbt build --profiles-dir ci
