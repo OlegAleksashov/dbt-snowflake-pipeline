@@ -11,5 +11,3 @@ SELECT
 	SEARCH_TERM
 FROM  {{ source('raw', 'raw_job_postings') }} 
 WHERE ERROR is NULL    
-
-/* JOBPOSTINGS.RAW.RAW_JOB_POSTINGS */;
