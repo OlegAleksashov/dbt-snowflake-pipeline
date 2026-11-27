@@ -54,6 +54,30 @@ models:
       - name: search_location
         description: Location parameter the scraper searched under.              
 
+  - name: stg_job_skill
+    description: >
+      One row per (job_id, skill_keyword), straight off the raw table. A skill_id repeats
+      on a job when the posting names it two ways (spark, pyspark). Deliberately boring;
+      rename, order, trim is the staging discipline working.
+    columns:
+      - name: job_id
+        description: >
+          Every row's parent exists in stg_job_postings; the course export's join guarantees
+          it, so the relationships test passes by construction. Same assertion the datanerd
+          pipeline runs nightly in production, where integrity is a real risk.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_job_postings')
+                field: job_id
+      - name: skill_id
+        description: Skill key; categorized by the skill_categories seed via dim_skill.
+        data_tests:
+          - not_null
+      - name: skill_keyword
+        description: Skill text as extracted, trimmed.
+
   - name: stg_jobs_per_month
     description: Monthly posting counts by role.
     columns:
