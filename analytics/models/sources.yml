@@ -4,4 +4,6 @@ sources:
     schema: RAW
     tables:
       - name: raw_job_postings
+        description: One row per posting per scrape event.
       - name: raw_job_skills
+        description: One row per (job, skill) pair extracted from the postings.
