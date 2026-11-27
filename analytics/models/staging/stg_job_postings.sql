@@ -1,0 +1,25 @@
+WITH source AS (
+	SELECT *
+	FROM {{ source('raw', 'raw_job_postings') }}
+	WHERE ERROR IS DISTINCT FROM TRUE
+),
+cleaned as (
+	SELECT
+	  JOB_ID,
+	  JOB_TITLE,
+	  TRIM(COMPANY_NAME) as COMPANY_NAME,
+	  JOB_LOCATION,
+	  TRIM(REGEXP_REPLACE(JOB_VIA, '^via\\s*', '', 1, 1, 'i')) AS JOB_VIA,
+	  JOB_POSTED_AT,
+	  JOB_SALARY,
+	  JOB_SCHEDULE_TYPE,
+	  JOB_WORK_FROM_HOME,
+	  JOB_EXTENSIONS_RAW,
+	  SEARCH_TIME AS SEARCH_AT,
+	  SEARCH_DATE,
+	  SEARCH_TERM,
+	  SEARCH_LOCATION
+    FROM  source
+)
+SELECT * FROM cleaned
+     

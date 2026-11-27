@@ -1,0 +1,91 @@
+models:
+  - name: stg_job_postings
+    description: >
+      One row per posting per scrape day; a job re-scraped across days keeps every row
+      (the snapshot depends on them; fct_job_postings dedupes to one row per job).
+      685,695 rows after two cuts: the door-drop (151,147 scraper-flagged error rows —
+      staging's first cleanup, 3.03.3) and the test-earned null-id cut (6,255 id-less
+      incident-window postings, 3.09.4).
+    columns:
+      - name: job_id
+        description: >
+          The scraper's posting id. Not unique at this grain by design; uniqueness is
+          promised, and tested, at fct_job_postings.
+      - name: job_title
+        description: Posting title as scraped; blank on the scraper's error rows.
+        data_tests:
+          - not_null 
+      - name: company_name
+        description: Employer name as scraped. 
+      - name: job_location
+        description: Posting location as scraped.
+      - name: job_via
+        description: Posting platform as scraped ('via LinkedIn' — the prefix is the scraper's artifact).  
+      - name: job_posted_at
+        description: >
+          Raw relative posted time ('10 hours ago'), kept unparsed — search_date carries the
+          course's time axis (~95% of rows are scraped within a day of posting); parsing this
+          precisely is a supporter exercise.
+      - name: job_salary
+        description: Raw salary text, kept unparsed; the snapshot lesson diffs it across scrapes.  
+      - name: job_schedule_type
+        description: >
+          As scraped; 12,252 nulls stay null (documented, not fixed). 17 distinct values in
+          the wild, including combos like 'Full-time and Part-time' (25,242 rows), so the naive
+          four-value test below fails 28,776 rows by design: the 3.09.2 finding, kept visible at
+          warn severity instead of silently "fixed". 
+      - name: job_work_from_home
+        description: True when the posting is flagged remote.
+      - name: job_extensions_raw
+        description: >
+          Raw extension tags from the posting ('10 hours ago', 'Full-time', 'Health insurance',
+          'No degree mentioned'), kept unparsed; job_posted_at, job_schedule_type and
+          job_work_from_home are already split out of it upstream. 
+      - name: search_at
+        description: Scrape timestamp (search_time renamed); anchors the snapshot's updated_at.
+      - name: search_date
+        description: Scrape day; doubles as the incremental high-water mark in fct_job_postings.  
+      - name: search_term
+        description: The role the scraper searched for; exactly three values by construction.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Data Engineer', 'Data Analyst', 'Data Scientist']  
+      - name: search_location
+        description: Location parameter the scraper searched under.              
+
+  - name: stg_jobs_per_month
+    description: Monthly posting counts by role.
+    columns:
+      - name: month
+        description: Posting month, truncated from search_date.
+      - name: role
+        description: Search role (search_term).
+      - name: postings
+        description: Postings counted for the role that month.  
+
+  - name: stg_monthly_summary
+    description: Monthly summary of job postings; one row per month.
+    columns:
+      - name: month
+        description: Year and month of the summary.
+        data_tests:
+          - not_null
+          - unique
+      - name: total_postings
+        description: All postings that month (summed from jobs_per_month).
+      - name: remote_postings
+        description: Postings flagged remote that month.
+      - name: pct_remote
+        description: Share of the month's postings flagged remote, percent.
+
+  - name: stg_top_locations
+    description: Top 10 locations by posting count.
+    columns:
+      - name: job_location
+        description: Posting location; the grain. (2,472 null-location rows exist upstream; the top-10 cut keeps them out.)
+        data_tests:
+          - not_null
+          - unique
+      - name: postings
+        description: Postings counted for the location.          
