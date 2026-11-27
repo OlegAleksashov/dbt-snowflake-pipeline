@@ -33,7 +33,13 @@ models:
           As scraped; 12,252 nulls stay null (documented, not fixed). 17 distinct values in
           the wild, including combos like 'Full-time and Part-time' (25,242 rows), so the naive
           four-value test below fails 28,776 rows by design: the 3.09.2 finding, kept visible at
-          warn severity instead of silently "fixed". 
+          warn severity instead of silently "fixed".
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Full-time', 'Part-time', 'Contractor', 'Internship']
+              config:
+                severity: warn
       - name: job_work_from_home
         description: True when the posting is flagged remote.
       - name: job_extensions_raw
@@ -77,39 +83,3 @@ models:
           - not_null
       - name: skill_keyword
         description: Skill text as extracted, trimmed.
-
-  - name: stg_jobs_per_month
-    description: Monthly posting counts by role.
-    columns:
-      - name: month
-        description: Posting month, truncated from search_date.
-      - name: role
-        description: Search role (search_term).
-      - name: postings
-        description: Postings counted for the role that month.  
-
-  - name: stg_monthly_summary
-    description: Monthly summary of job postings; one row per month.
-    columns:
-      - name: month
-        description: Year and month of the summary.
-        data_tests:
-          - not_null
-          - unique
-      - name: total_postings
-        description: All postings that month (summed from jobs_per_month).
-      - name: remote_postings
-        description: Postings flagged remote that month.
-      - name: pct_remote
-        description: Share of the month's postings flagged remote, percent.
-
-  - name: stg_top_locations
-    description: Top 10 locations by posting count.
-    columns:
-      - name: job_location
-        description: Posting location; the grain. (2,472 null-location rows exist upstream; the top-10 cut keeps them out.)
-        data_tests:
-          - not_null
-          - unique
-      - name: postings
-        description: Postings counted for the location.          

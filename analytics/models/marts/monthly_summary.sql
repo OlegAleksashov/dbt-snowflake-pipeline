@@ -1,6 +1,6 @@
 WITH totals AS (
     SELECT month, SUM(postings) AS total_postings
-    FROM {{ ref('stg_jobs_per_month') }}
+    FROM {{ ref('jobs_per_month') }}
     GROUP BY month
 ),
 remote AS (

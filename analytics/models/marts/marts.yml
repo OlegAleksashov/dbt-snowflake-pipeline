@@ -1,0 +1,36 @@
+models:
+  - name: jobs_per_month
+    description: Monthly posting counts by role.
+    columns:
+      - name: month
+        description: Posting month, truncated from search_date.
+      - name: role
+        description: Search role (search_term).
+      - name: postings
+        description: Postings counted for the role that month.  
+
+  - name: monthly_summary
+    description: Monthly summary of job postings; one row per month.
+    columns:
+      - name: month
+        description: Year and month of the summary.
+        data_tests:
+          - not_null
+          - unique
+      - name: total_postings
+        description: All postings that month (summed from jobs_per_month).
+      - name: remote_postings
+        description: Postings flagged remote that month.
+      - name: pct_remote
+        description: Share of the month's postings flagged remote, percent.
+
+  - name: top_locations
+    description: Top 10 locations by posting count.
+    columns:
+      - name: job_location
+        description: Posting location; the grain. (2,472 null-location rows exist upstream; the top-10 cut keeps them out.)
+        data_tests:
+          - not_null
+          - unique
+      - name: postings
+        description: Postings counted for the location.

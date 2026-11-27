@@ -2,6 +2,7 @@ WITH source AS (
 	SELECT *
 	FROM {{ source('raw', 'raw_job_postings') }}
 	WHERE ERROR IS DISTINCT FROM TRUE
+	  AND JOB_ID IS NOT NULL
 ),
 cleaned as (
 	SELECT
