@@ -46,7 +46,24 @@ models:
         description: >
           Raw extension tags from the posting ('10 hours ago', 'Full-time', 'Health insurance',
           'No degree mentioned'), kept unparsed; job_posted_at, job_schedule_type and
-          job_work_from_home are already split out of it upstream. 
+          job_work_from_home are already split out of it upstream, and the has_* flags
+          below are derived from it in this model.
+      - name: has_no_degree_mentioned
+        description: >
+          True when job_extensions_raw contains 'No degree mentioned'. Null when the raw
+          extensions are empty or not valid JSON (45 rows).
+      - name: has_health_insurance
+        description: >
+          True when job_extensions_raw contains 'Health insurance'. Null when the raw
+          extensions are empty or not valid JSON (45 rows).
+      - name: has_dental_insurance
+        description: >
+          True when job_extensions_raw contains 'Dental insurance'. Null when the raw
+          extensions are empty or not valid JSON (45 rows).
+      - name: has_paid_time_off
+        description: >
+          True when job_extensions_raw contains 'Paid time off'. Null when the raw
+          extensions are empty or not valid JSON (45 rows).
       - name: search_at
         description: Scrape timestamp (search_time renamed); anchors the snapshot's updated_at.
       - name: search_date
